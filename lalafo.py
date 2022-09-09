@@ -1,6 +1,3 @@
-import json
-import pprint
-
 from loguru import logger
 from loader import req, db_handler
 from utils import stopwatch
