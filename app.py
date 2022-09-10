@@ -10,7 +10,7 @@ def main():
     while True:
         categories = db_handler.get_categories()
         for cat in categories:
-            lalafo_service.get_offers_from_filter_page(cat)
+            lalafo_service.get_offers_from_filter_page(cat[0])
 
         time.sleep(3)
 
