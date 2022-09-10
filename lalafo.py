@@ -30,7 +30,12 @@ class Lalafo:
             offer.price = item['price']
             offer.number = item.get('number', None)
             offer.seller_id = item['user_id']
-            offer.photo = item.get('images')[0]['original_url']
+
+            try:
+                offer.photo = item.get('images')[0]['original_url']
+            except IndexError:
+                offer.photo = 'https://tdolis.ru/assets/img/nophoto.png'
+
 
             try:
                 telegram.send_offer(offer)
