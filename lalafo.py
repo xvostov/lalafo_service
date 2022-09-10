@@ -18,32 +18,34 @@ class Lalafo:
         resp_dict = dict(resp.json())
 
         viewed_ids = db_handler.get_viewed_links()
+
         for item in resp_dict['items']:
             offer = Offer('https://lalafo.kg' + item['url'])
             offer.id = item['id']
 
             if offer.id in viewed_ids:
+                logger.debug(f'{offer.id} - found in db, offer will be skipped')
                 continue
-
-            offer.title = item['title']
-            offer.description = item['description']
-            offer.price = item['price']
-            offer.number = item.get('number', None)
-            offer.seller_id = item['user_id']
-
-            try:
-                offer.photo = item.get('images')[0]['original_url']
-            except IndexError:
-                offer.photo = 'https://tdolis.ru/assets/img/nophoto.png'
-
-
-            try:
-                telegram.send_offer(offer)
-
-            except Exception:
-                pass
             else:
-                db_handler.add_to_viewed_links(offer.id)
+                offer.title = item['title']
+                offer.description = item['description']
+                offer.price = item['price']
+                offer.number = item.get('number', None)
+                offer.seller_id = item['user_id']
+
+                try:
+                    offer.photo = item.get('images')[0]['original_url']
+                except IndexError:
+                    offer.photo = 'https://tdolis.ru/assets/img/nophoto.png'
+
+
+                try:
+                    telegram.send_offer(offer)
+
+                except Exception:
+                    pass
+                else:
+                    db_handler.add_to_viewed_links(offer.id)
 
         try:
             next_page = 'https://lalafo.kg' + resp_dict['_links']['next']['href']
