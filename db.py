@@ -47,7 +47,7 @@ class DataBaseHandler:
     def get_viewed_links(self) -> List:
         logger.debug('Getting viewed links')
         while True:
-           try:
+            try:
                 self.mysql_cursor.execute("SELECT url FROM viewed_links_lalafo")
                 resp = self.mysql_cursor.fetchall()
             except pymysql.err.OperationalError:
