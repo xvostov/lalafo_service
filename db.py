@@ -13,7 +13,9 @@ class DataBaseHandler:
                                                 user=db_user,
                                                 password=db_password,
                                                 database=db_name,
-                                                charset='utf8mb4')
+                                                charset='utf8mb4',
+                                                autocommit=True)
+
         self.mysql_cursor = self.mysql_connection.cursor()
         self.mysql_connection.autocommit(True)
         
@@ -24,10 +26,10 @@ class DataBaseHandler:
         url	VARCHAR(200) NOT NULL UNIQUE)""")
 
 
-        # logger.debug('Checking the om "stopwords_lalafo" table')
-        # self.mysql_cursor.execute("""
-        # CREATE TABLE IF NOT EXISTS stopwords_lalafo (
-        # word VARCHAR(200) NOT NULL)""")
+        logger.debug('Checking the om "stopwords_lalafo" table')
+        self.mysql_cursor.execute("""
+        CREATE TABLE IF NOT EXISTS stopwords_lalafo (
+        word VARCHAR(200) NOT NULL)""")
 
         logger.debug(f'Checking the om "{categories_table}" table')
         self.mysql_cursor.execute(f"""
@@ -45,7 +47,7 @@ class DataBaseHandler:
     def get_viewed_links(self) -> List:
         logger.debug('Getting viewed links')
         while True:
-            try:
+           try:
                 self.mysql_cursor.execute("SELECT url FROM viewed_links_lalafo")
                 resp = self.mysql_cursor.fetchall()
             except pymysql.err.OperationalError:
@@ -80,6 +82,14 @@ class DataBaseHandler:
         logger.debug('Categories received')
         return [d for d in resp]
 
+    def get_stopwords(self) -> List:
+        self.mysql_connection.ping(True)
+        logger.debug('Getting stopwords')
+        self.mysql_cursor.execute("SELECT word FROM stopwords")
+        resp = self.mysql_cursor.fetchall()
+
+        return [d[0] for d in resp]
+
     # def get_blacklist(self) -> List:
     #     self.mysql_connection.ping(True)
     #
@@ -88,15 +98,6 @@ class DataBaseHandler:
     #     resp = self.mysql_cursor.fetchall()
     #
     #     return [d[0] for d in resp]
-
-    # def get_stopwords(self) -> List:
-    #     self.mysql_connection.ping(True)
-    #     logger.debug('Getting stopwords')
-    #     self.mysql_cursor.execute("SELECT word FROM stopwords")
-    #     resp = self.mysql_cursor.fetchall()
-    #
-    #     return [d[0] for d in resp]
-
 
 if __name__ == '__main__':
     db = DataBaseHandler()

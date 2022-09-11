@@ -2,7 +2,7 @@ from loguru import logger
 from loader import req, db_handler
 from utils import stopwatch
 from offer import Offer
-
+from exceptions import UnsuitableProductError
 import telegram
 
 
@@ -18,6 +18,7 @@ class Lalafo:
         resp_dict = dict(resp.json())
 
         viewed_ids = db_handler.get_viewed_links()
+        stop_words = db_handler.get_stopwords()
 
         for item in resp_dict['items']:
             offer = Offer('https://lalafo.kg' + item['url'])
@@ -29,6 +30,18 @@ class Lalafo:
             else:
                 offer.title = item['title']
                 offer.description = item['description']
+                if len(offer.description) > 3500:
+                    offer.description = offer.description[:2500]
+
+                try:
+                    for word in stop_words:
+                        if word in offer.title or word in offer.description:
+                            logger.debug(f'Stop word was found: {word}')
+                            raise UnsuitableProductError
+
+                except UnsuitableProductError:
+                    continue
+
                 offer.price = item['price']
                 offer.number = item.get('number', None)
                 offer.seller_id = item['user_id']
@@ -37,7 +50,6 @@ class Lalafo:
                     offer.photo = item.get('images')[0]['original_url']
                 except IndexError:
                     offer.photo = 'https://tdolis.ru/assets/img/nophoto.png'
-
 
                 try:
                     telegram.send_offer(offer)
@@ -62,6 +74,7 @@ def main():
 
     result = lalafo.get_offers_from_filter_page(url)
     print(result)
+
 
 if __name__ == '__main__':
     main()
