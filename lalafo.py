@@ -21,7 +21,7 @@ class Lalafo:
 
         for item in resp_dict['items']:
             offer = Offer('https://lalafo.kg' + item['url'])
-            offer.id = item['id']
+            offer.id = str(item['id'])
 
             if offer.id in viewed_ids:
                 logger.debug(f'{offer.id} - found in db, offer will be skipped')
