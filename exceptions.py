@@ -1,3 +1,3 @@
-class UnsuitableProductError(BaseException):
+class UnsuitableProductError(Exception):
     pass
 
